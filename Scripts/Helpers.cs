@@ -388,5 +388,89 @@ namespace GameUtilities
             OnComplete?.Invoke();
 
         }
+
+        public static bool IsContainedBy(this Collider2D thisCollider, Collider2D other)
+        {
+            return other.bounds.Contains(thisCollider.bounds.min) && other.bounds.Contains(thisCollider.bounds.max);
+        }
+
+        //public static Vector3 GetCenterPosition(this List<Transform> transformList)
+        //{
+        //    Vector3 centerPos = Vector3.zero;
+        //    foreach (Transform item in transformList)
+        //    {
+        //        Vector3 position = item.position;
+        //        position.z = 0;
+        //        centerPos += position;
+        //    }
+
+
+        //    centerPos /= transformList.Count;
+        //    return centerPos;
+        //}
+
+        public static Vector3 MouseWorldPosition2D(this Camera camera)
+        {
+            Vector3 worldPos = camera.ScreenToWorldPoint(Input.mousePosition);
+            worldPos.z = 0;
+            return worldPos;
+        }
+        public static Vector3 MouseWorldPosition3D(this Camera camera)
+        {
+            return camera.ScreenToWorldPoint(Input.mousePosition);
+        }
+
+        public static bool IsMouseOver(this Camera camera, LayerMask layerMask)
+        {
+            Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit2D hitInfo = Physics2D.Raycast(ray.origin, ray.direction, Mathf.Infinity, layerMask);
+            return hitInfo.collider != null;
+        }
+      
+        public static void SetCursor(Texture2D cursor)
+        {
+            var xspot = cursor.width / 2;
+            var yspot = cursor.height / 2;
+            Cursor.SetCursor(cursor, new Vector2(xspot, yspot), CursorMode.ForceSoftware);
+        }
+        public static void ResetCursor()
+        {
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.ForceSoftware);
+        }
+
+       
+    }
+
+    public static class JsonHelper
+    {
+        public static T[] FromJson<T>(string json)
+        {
+            Wrapper<T> wrapper = JsonUtility.FromJson<Wrapper<T>>(json);
+            return wrapper.Items;
+        }
+
+        public static string ToJson<T>(T[] array)
+        {
+            Wrapper<T> wrapper = new()
+            {
+                Items = array
+            };
+            return JsonUtility.ToJson(wrapper);
+        }
+
+        public static string ToJson<T>(T[] array, bool prettyPrint)
+        {
+            Wrapper<T> wrapper = new()
+            {
+                Items = array
+            };
+            return JsonUtility.ToJson(wrapper, prettyPrint);
+        }
+
+        [Serializable]
+        private class Wrapper<T>
+        {
+            public T[] Items;
+        }
     }
 }
